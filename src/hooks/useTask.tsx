@@ -5,7 +5,7 @@ import { Task } from "@/types"; // Ensure you have the Task type defined
 export const useTask = () => {
   // Initialize tasks state and load from localStorage
   const [tasks, setTasks] = useState<Task[]>(() => {
-    if (typeof window !== null) {
+    if (typeof window !== "undefined") {
       const savedTasks = localStorage.getItem("tasks");
       return savedTasks ? JSON.parse(savedTasks) : [];
     }
