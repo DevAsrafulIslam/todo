@@ -30,7 +30,7 @@ export const TodoScreen = () => {
     updateTaskCategory,
     updateTaskStatus,
     updateTaskLocation,
-    updateTaskImage,
+    // updateTaskImage,
     toggleTaskSharing,
     shareTaskWith,
     removeShareWith,

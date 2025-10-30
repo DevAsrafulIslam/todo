@@ -12,8 +12,8 @@ export const useTask = () => {
       if (savedTasks) {
         // Ensure all tasks have the required properties
         const parsedTasks = JSON.parse(savedTasks);
-        return parsedTasks.map((task: any) => ({
-          id: task.id,
+        return parsedTasks.map((task: Task) => ({
+          id: task.id || nanoid(),
           description: task.description || "",
           completed: task.completed || false,
           category: task.category || "Uncategorized",
