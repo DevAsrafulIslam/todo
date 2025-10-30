@@ -30,8 +30,6 @@ export const TodoScreen = () => {
     updateTaskCategory,
     updateTaskStatus,
     updateTaskLocation,
-    // updateTaskImage,
-    toggleTaskSharing,
     shareTaskWith,
     removeShareWith,
   } = useTask();
@@ -72,7 +70,7 @@ export const TodoScreen = () => {
               <div
                 key={cat}
                 className={cn(
-                  "px-3 py-1 rounded-full text-sm cursor-pointer flex items-center gap-1",
+                  // "px-3 py-1 rounded-full text-sm cursor-pointer flex items-center gap-1",
                   category === cat ? "bg-blue-500 text-white" : "bg-gray-100"
                 )}
               >
@@ -177,7 +175,7 @@ export const TodoScreen = () => {
                 value={status}
                 onChange={(e) => setStatus(e.target.value as TaskStatus)}
               >
-                <option value="not_started">Store</option>
+                <option value="not_started">Not Started</option>
                 <option value="in_progress">Sewing</option>
                 <option value="in_progress">Wash</option>
                 <option value="completed">Completed</option>
@@ -367,7 +365,7 @@ export const TodoScreen = () => {
                   <div className="mt-3 pt-3 border-t">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <button
+                        {/* <button
                           onClick={() => toggleTaskSharing(task.id)}
                           className={cn(
                             "text-sm py-1 px-3 rounded-full flex items-center gap-1",
@@ -380,7 +378,7 @@ export const TodoScreen = () => {
                             <line x1="12" y1="2" x2="12" y2="15"></line>
                           </svg>
                           {task.shared ? "Shared" : "Share"}
-                        </button>
+                        </button> */}
 
                         {isClient && (
                           <button
@@ -494,4 +492,3 @@ export const TodoScreen = () => {
     </div>
   );
 };
-
