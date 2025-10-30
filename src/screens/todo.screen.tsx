@@ -355,7 +355,7 @@ export const TodoScreen = () => {
                     <img
                       src={task.imageUrl}
                       alt={task.description}
-                      className="h-32 object-cover rounded"
+                      className="h-32 w-full object-cover rounded  "
                     />
                   </div>
                 )}
