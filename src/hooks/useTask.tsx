@@ -1,18 +1,49 @@
+"use client";
+
 import { useState } from "react";
 import { nanoid } from "nanoid";
-import { Task } from "@/types"; // Ensure you have the Task type defined
+import { Task, TaskStatus, TaskLocation } from "@/types";
 
 export const useTask = () => {
   // Initialize tasks state and load from localStorage
   const [tasks, setTasks] = useState<Task[]>(() => {
     if (typeof window !== "undefined") {
       const savedTasks = localStorage.getItem("tasks");
-      return savedTasks ? JSON.parse(savedTasks) : [];
+      if (savedTasks) {
+        // Ensure all tasks have the required properties
+        const parsedTasks = JSON.parse(savedTasks);
+        return parsedTasks.map((task: any) => ({
+          id: task.id,
+          description: task.description || "",
+          completed: task.completed || false,
+          category: task.category || "Uncategorized",
+          imageUrl: task.imageUrl,
+          status: task.status || "not_started",
+          location: task.location || "home",
+          shared: task.shared || false,
+          sharedWith: task.sharedWith || []
+        }));
+      }
+      return [];
     }
     return [];
   });
 
+  // State for task inputs
   const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
+  const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
+  const [status, setStatus] = useState<TaskStatus>("not_started");
+  const [location, setLocation] = useState<TaskLocation>("home");
+
+  // State for categories management
+  const [categories, setCategories] = useState<string[]>(() => {
+    if (typeof window !== "undefined") {
+      const savedCategories = localStorage.getItem("categories");
+      return savedCategories ? JSON.parse(savedCategories) : ["Personal", "Work", "Shopping"];
+    }
+    return ["Personal", "Work", "Shopping"];
+  });
 
   // Helper to save tasks to localStorage
   const saveTasksToLocalStorage = (tasks: Task[]) => {
@@ -21,16 +52,54 @@ export const useTask = () => {
     }
   };
 
-  // Add a new task
+  // Helper to save categories to localStorage
+  const saveCategoriesToLocalStorage = (categories: string[]) => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("categories", JSON.stringify(categories));
+    }
+  };
+
+  // Add a new task with all properties
   const addTask = () => {
     if (description.trim() === "") return;
 
-    const newTask = { id: nanoid(), description, completed: false };
+    const newTask: Task = {
+      id: nanoid(),
+      description,
+      completed: false,
+      category: category || "Uncategorized",
+      imageUrl,
+      status,
+      location,
+      shared: false,
+      sharedWith: []
+    };
+
     const updatedTasks = [...tasks, newTask];
 
     setTasks(updatedTasks);
     saveTasksToLocalStorage(updatedTasks);
+
+    // Reset form fields
     setDescription("");
+    setImageUrl(undefined);
+    setStatus("not_started");
+  };
+
+  // Add a new category
+  const addCategory = (newCategory: string) => {
+    if (newCategory.trim() === "" || categories.includes(newCategory)) return;
+
+    const updatedCategories = [...categories, newCategory];
+    setCategories(updatedCategories);
+    saveCategoriesToLocalStorage(updatedCategories);
+  };
+
+  // Remove a category
+  const removeCategory = (categoryToRemove: string) => {
+    const updatedCategories = categories.filter(cat => cat !== categoryToRemove);
+    setCategories(updatedCategories);
+    saveCategoriesToLocalStorage(updatedCategories);
   };
 
   // Remove a task by its id
@@ -51,11 +120,101 @@ export const useTask = () => {
     saveTasksToLocalStorage(updatedTasks);
   };
 
-  // Toggle a task's status (completed or not)
+  // Update task image
+  const updateTaskImage = (id: string, newImageUrl: string | undefined) => {
+    const updatedTasks = tasks.map((task) =>
+      task.id === id ? { ...task, imageUrl: newImageUrl } : task
+    );
+
+    setTasks(updatedTasks);
+    saveTasksToLocalStorage(updatedTasks);
+  };
+
+  // Update task category
+  const updateTaskCategory = (id: string, newCategory: string) => {
+    const updatedTasks = tasks.map((task) =>
+      task.id === id ? { ...task, category: newCategory } : task
+    );
+
+    setTasks(updatedTasks);
+    saveTasksToLocalStorage(updatedTasks);
+  };
+
+  // Update task status
+  const updateTaskStatus = (id: string, newStatus: TaskStatus) => {
+    const updatedTasks = tasks.map((task) =>
+      task.id === id ? { ...task, status: newStatus } : task
+    );
+
+    setTasks(updatedTasks);
+    saveTasksToLocalStorage(updatedTasks);
+  };
+
+  // Update task location
+  const updateTaskLocation = (id: string, newLocation: TaskLocation) => {
+    const updatedTasks = tasks.map((task) =>
+      task.id === id ? { ...task, location: newLocation } : task
+    );
+
+    setTasks(updatedTasks);
+    saveTasksToLocalStorage(updatedTasks);
+  };
+
+  // Toggle a task's completed status
   const toggleTaskStatus = (id: string) => {
     const updatedTasks = tasks.map((task) =>
       task.id === id ? { ...task, completed: !task.completed } : task
     );
+
+    setTasks(updatedTasks);
+    saveTasksToLocalStorage(updatedTasks);
+  };
+
+  // Toggle task sharing status
+  const toggleTaskSharing = (id: string) => {
+    const updatedTasks = tasks.map((task) =>
+      task.id === id ? { ...task, shared: !task.shared } : task
+    );
+
+    setTasks(updatedTasks);
+    saveTasksToLocalStorage(updatedTasks);
+  };
+
+  // Add a person to share with
+  const shareTaskWith = (id: string, email: string) => {
+    if (!email || !email.includes('@')) return;
+
+    const updatedTasks = tasks.map((task) => {
+      if (task.id === id) {
+        const currentSharedWith = task.sharedWith || [];
+        if (!currentSharedWith.includes(email)) {
+          return {
+            ...task,
+            shared: true,
+            sharedWith: [...currentSharedWith, email]
+          };
+        }
+      }
+      return task;
+    });
+
+    setTasks(updatedTasks);
+    saveTasksToLocalStorage(updatedTasks);
+  };
+
+  // Remove a person from sharing
+  const removeShareWith = (id: string, email: string) => {
+    const updatedTasks = tasks.map((task) => {
+      if (task.id === id && task.sharedWith) {
+        const updatedSharedWith = task.sharedWith.filter(e => e !== email);
+        return {
+          ...task,
+          shared: updatedSharedWith.length > 0,
+          sharedWith: updatedSharedWith
+        };
+      }
+      return task;
+    });
 
     setTasks(updatedTasks);
     saveTasksToLocalStorage(updatedTasks);
@@ -70,66 +229,31 @@ export const useTask = () => {
 
   return {
     tasks,
+    categories,
     addTask,
+    addCategory,
+    removeCategory,
     description,
     setDescription,
+    category,
+    setCategory,
+    imageUrl,
+    setImageUrl,
+    status,
+    setStatus,
+    location,
+    setLocation,
     removeTask,
     editTask,
+    updateTaskImage,
+    updateTaskCategory,
+    updateTaskStatus,
+    updateTaskLocation,
     toggleTaskStatus,
+    toggleTaskSharing,
+    shareTaskWith,
+    removeShareWith,
     saveTask,
   };
 };
 
-// import { Task } from "@/types";
-// import { useState } from "react";
-// import { nanoid } from "nanoid";
-
-// export const useTask = () => {
-//   const [description, setDescription] = useState("");
-//   const [tasks, setTasks] = useState<Task[]>([]);
-
-//   // save task to local state
-//   const saveTask = (task: Task) => {
-//     setTasks((prev) => [...prev, task]);
-//   };
-
-//   // Add a new task
-//   const addTask = () => {
-//     if (description.trim() === "") return;
-
-//     setTasks((prev) => [
-//       ...prev,
-//       { id: nanoid(), description, completed: false },
-//     ]);
-//     setDescription("");
-//   };
-//   // Remove a task by its id
-//   const removeTask = (id: string) => {
-//     setTasks((prev) => prev.filter((item) => item.id !== id));
-//   };
-//   // Edit a task's description
-//   const editTask = (id: string, description: string) => {
-//     setTasks((prev) =>
-//       prev.map((item) => (item.id === id ? { ...item, description } : item))
-//     );
-//   };
-//   // Toggle a task's status (completed or not)
-//   const toggleTaskStatus = (id: string) => {
-//     setTasks((prev) =>
-//       prev.map((item) =>
-//         item.id === id ? { ...item, completed: !item.completed } : item
-//       )
-//     );
-//   };
-
-//   return {
-//     tasks,
-//     addTask,
-//     description,
-//     setDescription,
-//     removeTask,
-//     editTask,
-//     toggleTaskStatus,
-//     saveTask,
-//   };
-// };
