@@ -71,7 +71,7 @@ export const TodoScreen = () => {
                 key={cat}
                 className={cn(
                   // "px-3 py-1 rounded-full text-sm cursor-pointer flex items-center gap-1",
-                  category === cat ? "bg-blue-500 text-white" : "bg-gray-100"
+                  category === cat ? "bg-blue-500 text-white rounded-full flex items-center p-2" : "bg-gray-100 rounded-full flex items-center p-2"
                 )}
               >
                 <span onClick={() => setCategory(cat)}>{cat}</span>
@@ -175,7 +175,7 @@ export const TodoScreen = () => {
                 value={status}
                 onChange={(e) => setStatus(e.target.value as TaskStatus)}
               >
-                <option value="not_started">Not Started</option>
+                <option value="not_started">Store</option>
                 <option value="in_progress">Sewing</option>
                 <option value="in_progress">Wash</option>
                 <option value="completed">Completed</option>
@@ -328,8 +328,9 @@ export const TodoScreen = () => {
                       value={task.status}
                       onChange={(e) => updateTaskStatus(task.id, e.target.value as TaskStatus)}
                     >
-                      <option value="not_started">Not Started</option>
-                      <option value="in_progress">In Progress</option>
+                      <option value="not_started">Store</option>
+                      <option value="in_progress">Sewing</option>
+                      <option value="in_progress">Wash</option>
                       <option value="completed">Completed</option>
                     </select>
                   </div>
@@ -355,7 +356,7 @@ export const TodoScreen = () => {
                     <img
                       src={task.imageUrl}
                       alt={task.description}
-                      className="h-32 w-full object-cover rounded  "
+                      className="h-32 w-full object-cover rounded"
                     />
                   </div>
                 )}
@@ -425,7 +426,7 @@ export const TodoScreen = () => {
                               setSharingTaskId(sharingTaskId === task.id ? null : task.id);
                               setShareEmail("");
                             }}
-                            className="text-sm py-1 px-3 rounded-full bg-gray-100"
+                            className="text-sm py-1 px-3 rounded-full bg-gray-100 md:rounded-full md:px-3"
                           >
                             {sharingTaskId === task.id ? "Cancel" : "Manage Sharing"}
                           </button>
